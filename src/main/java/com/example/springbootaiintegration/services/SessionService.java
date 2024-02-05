@@ -1,23 +1,28 @@
 package com.example.springbootaiintegration.services;
 
-import org.springframework.ai.chat.messages.Message;
+import com.example.springbootaiintegration.mongoRepos.SessionRepository;
+import com.example.springbootaiintegration.mongoRepos.entities.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SessionService {
 
+    private final SessionRepository repository;
 
-    private final Map<UUID, List<Message>> sessions = new ConcurrentHashMap<>();
-    public List<Message> getConversation(UUID sessionId) {
-        return sessions.get(sessionId);
+    @Autowired
+    SessionService(SessionRepository repository){
+        this.repository = repository;
     }
 
-    public void addConversation(UUID id, List<Message> conversation) {
-        sessions.put(id, conversation);
+    public Session getConversation(String sessionId) {
+        return repository.findById(sessionId).orElse(null);
     }
+
+    public void addConversation(Session conversation) {
+        repository.save(conversation);
+    }
+
 }

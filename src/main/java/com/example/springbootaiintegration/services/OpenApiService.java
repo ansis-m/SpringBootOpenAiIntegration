@@ -1,5 +1,7 @@
 package com.example.springbootaiintegration.services;
 
+import com.example.springbootaiintegration.mongoRepos.dtos.MessageDto;
+import com.example.springbootaiintegration.mongoRepos.entities.Session;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -42,19 +44,19 @@ public class OpenApiService {
     }
 
 
-    public Flux<String> getFlux(Map<String, Object> request, UUID id) {
+    public Flux<String> getFlux(Map<String, Object> request, String id) {
 
         var conversation = sessionService.getConversation(id);
         if (conversation == null || request.get("clearContext").equals(Boolean.TRUE)) {
-            conversation = Collections.synchronizedList(new LinkedList<>());
-            sessionService.addConversation(id, conversation);
+            conversation = new Session(id, new LinkedList<>());
         }
 
         validate(conversation);
         Message message = new UserMessage((String) request.get("prompt"));
-        conversation.add(message);
+        conversation.getMessages().add(new MessageDto(message));
         AtomicInteger count = new AtomicInteger(0);
-        var flux = client.stream(new Prompt(conversation))
+        var prompt = new Prompt(conversation.getMessages().stream().map(MessageDto::convert).toList());
+        var flux = client.stream(prompt)
                          .map(response ->
                               {
                                     count.incrementAndGet();
@@ -70,24 +72,29 @@ public class OpenApiService {
                 .publish()
                 .autoConnect(2);
 
-        appendResponseToConversation(flux, conversation);
+        appendResponseToConversation(flux, conversation, id);
 
         return flux;
     }
 
-    private void appendResponseToConversation(Flux<String> flux, List<Message> conversation) {
+    private void appendResponseToConversation(Flux<String> flux, Session conversation, String id) {
         flux.collectList().subscribe(
                 list -> {
                     var response = new AssistantMessage(String.join("", list));
-                    conversation.add(response);
+                    conversation.getMessages().add(new MessageDto(response));
+                    sessionService.addConversation(conversation);
                 },
                 error -> {
                     System.out.println("error collecting the list!");
                 });
     }
 
-    private void validate(List<Message> conversation) {
-        while (conversation.size() != 0 && !(conversation.get(conversation.size() - 1) instanceof AssistantMessage)) {
+    private void validate(Session session) {
+
+        System.out.println("\n\n\nid: " + session.getId() + "\n\n\n");
+
+        var conversation = session.getMessages();
+        while (conversation.size() != 0 && conversation.get(conversation.size() - 1).getType().equals("user")) {
             conversation.remove(conversation.size() - 1);
         }
     }

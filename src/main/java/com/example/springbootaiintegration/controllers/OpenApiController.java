@@ -25,12 +25,12 @@ public class OpenApiController {
     @PostMapping(value = "/openapi/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> postMessage(@RequestBody Map<String, Object> request, HttpSession session) {
 
-        var sessionId = session.getAttribute("sessionId");
+        String sessionId = (String) session.getAttribute("sessionId");
         if (sessionId == null) {
-            sessionId = UUID.randomUUID();
+            sessionId = UUID.randomUUID().toString();
             session.setAttribute("sessionId", sessionId);
         }
 
-        return openApiService.getFlux(request, (UUID) sessionId);
+        return openApiService.getFlux(request, sessionId);
     }
 }
