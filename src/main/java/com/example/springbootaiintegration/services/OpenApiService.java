@@ -64,24 +64,22 @@ public class OpenApiService {
                 .publish()
                 .autoConnect(2);
 
-        appendResponseToConversation(flux, conversation, id);
+        appendResponseToConversation(flux, conversation);
 
         return flux;
     }
 
-    private void appendResponseToConversation(Flux<String> flux, Session conversation, String id) {
+    private void appendResponseToConversation(Flux<String> flux, Session conversation) {
         flux.collectList().subscribe(
                 list -> {
                     var response = String.join("", list);
                     conversation.getMessages().add(new MessageDto(response));
                     sessionService.addConversation(conversation);
                 },
-                error -> {
-                    System.out.println("error collecting the list!");
-                });
+                error -> System.out.println("error collecting the list!"));
     }
 
-    private void validate(Session session) {
+    private static void validate(Session session) {
 
         var conversation = session.getMessages();
         while (conversation.size() != 0 && conversation.get(conversation.size() - 1).getType().equals("user")) {
