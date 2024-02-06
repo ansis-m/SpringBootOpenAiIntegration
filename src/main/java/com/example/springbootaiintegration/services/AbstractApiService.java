@@ -16,6 +16,7 @@ public abstract class AbstractApiService {
     SessionService sessionService;
     StreamingChatClient client;
     String intro = "";
+    String model = "";
 
 
     public Flux<String> getFlux(Map<String, Object> request, String id) {
@@ -30,6 +31,7 @@ public abstract class AbstractApiService {
         conversation.getMessages().add(new MessageDto(intro + (String) request.get("prompt"), MessageType.USER.getValue()));
         var prompt = new Prompt(conversation.getMessages().stream().map(MessageDto::convert).toList());
 
+        initializeClient(request);
         var flux = client.stream(prompt)
                          .map(response ->
                               {
@@ -67,4 +69,7 @@ public abstract class AbstractApiService {
             conversation.remove(conversation.size() - 1);
         }
     }
+
+    abstract void initializeClient(Map<String, Object> request);
+    abstract void makeClient();
 }
