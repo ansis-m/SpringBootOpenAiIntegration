@@ -39,7 +39,6 @@ public class OpenApiController {
     @PostMapping(value = "/llama/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId", required = false) String sessionId, HttpServletResponse response) {
 
-
         manageCookies(sessionId, response);
         return llamaApiService.getFlux(request, sessionId);
     }
