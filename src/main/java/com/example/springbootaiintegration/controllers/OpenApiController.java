@@ -31,7 +31,7 @@ public class OpenApiController {
     @PostMapping(value = "/openapi/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> postMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId", required = false) String sessionId, HttpServletResponse response) {
 
-        manageCookies(sessionId, response);
+        sessionId = manageCookies(sessionId, response);
         return openApiService.getFlux(request, sessionId);
     }
 
@@ -39,11 +39,11 @@ public class OpenApiController {
     @PostMapping(value = "/llama/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId", required = false) String sessionId, HttpServletResponse response) {
 
-        manageCookies(sessionId, response);
+        sessionId = manageCookies(sessionId, response);
         return llamaApiService.getFlux(request, sessionId);
     }
 
-    private void manageCookies(String sessionId, HttpServletResponse response) {
+    private String manageCookies(String sessionId, HttpServletResponse response) {
         if (sessionId == null) {
             sessionId = UUID.randomUUID().toString();
 
@@ -52,5 +52,6 @@ public class OpenApiController {
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
+        return sessionId;
     }
 }
