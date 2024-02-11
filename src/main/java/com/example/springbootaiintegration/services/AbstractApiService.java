@@ -7,6 +7,7 @@ import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.prompt.Prompt;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -49,7 +50,7 @@ public abstract class AbstractApiService {
 
         appendResponseToConversation(flux, conversation);
 
-        return flux;
+        return flux.concatWith(Mono.just("STREAM_END"));
     }
 
     private void appendResponseToConversation(Flux<String> flux, Session conversation) {

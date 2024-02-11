@@ -6,16 +6,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin("*")
 public class OpenApiController {
 
     private final OpenApiService openApiService;
@@ -41,6 +40,18 @@ public class OpenApiController {
 
         sessionId = manageCookies(sessionId, response);
         return llamaApiService.getFlux(request, sessionId);
+    }
+
+    @GetMapping(value = "/llama/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> getLamaMessage(@RequestParam String prompt, @RequestParam boolean clearContext, @CookieValue(name = "sessionId", required = false) String sessionId, HttpServletResponse response) {
+
+        System.out.println("params: " + prompt + " " + clearContext);
+
+        sessionId = manageCookies(sessionId, response);
+        return llamaApiService.getFlux(new HashMap<String, Object>(){{
+            put("prompt", prompt);
+            put("clearContext", clearContext);
+        }}, sessionId);
     }
 
     private String manageCookies(String sessionId, HttpServletResponse response) {
