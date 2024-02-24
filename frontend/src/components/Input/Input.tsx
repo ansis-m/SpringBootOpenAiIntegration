@@ -11,7 +11,7 @@ const Input: React.FC<InputProps> = (props) => {
 
   const handleSubmit = () => {
     props.onSubmit(inputText);
-    setInputText('');
+    //setInputText('');
   }
 
   return (

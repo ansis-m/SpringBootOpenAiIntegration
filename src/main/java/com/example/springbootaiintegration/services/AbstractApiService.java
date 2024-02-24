@@ -38,7 +38,7 @@ public abstract class AbstractApiService {
                               {
                                   var responeString = response.getResult().getOutput().getContent();
                                   if (responeString != null) {
-                                      return responeString;
+                                      return responeString.replace(" ", "\u00A0");
                                   } else {
                                       response.getMetadata().getPromptMetadata().forEach(m -> System.out.println(m.getPromptIndex()));
                                       return "\n\n";

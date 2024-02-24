@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET}, allowCredentials = "true")
 public class OpenApiController {
 
     private final OpenApiService openApiService;
