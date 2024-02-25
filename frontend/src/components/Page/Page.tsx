@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Reply from "../Reply/Reply";
 import Input from "../Input/Input";
 import "./Page.css";
@@ -7,8 +7,49 @@ import "./Page.css";
 const Page: React.FC = () => {
 
     let id = "";
-    const url = new URL("http://localhost:8081/llama/post");
+    let connection = useRef<EventSource | null>(null);
+    const messageUrl = new URL("http://localhost:8081/llama/post");
+    const connectionUrl = new URL("http://localhost:8081/connection");
     const [messages, setMessage] = useState([{"prompt": "", "reply": [""]}]);
+
+
+    useEffect(() => {
+
+        if (connection.current === null) {
+            connection.current = new EventSource(connectionUrl, { withCredentials: true });
+
+            connection.current.onopen = (event) => {console.log('Connection established!')};
+
+            connection.current.onmessage = function(event) {
+                if (event.data === "STREAM_END") {
+                    setMessage(messages => {
+                        return [...messages, {"reply": [""], "prompt": ""}];
+                    })
+                    console.log("closed");
+                } else {
+                    setMessage(messages => {
+                        console.log(event.data);
+                        const newMessages = [...messages];
+                        const lastIndex = newMessages.length - 1;
+                        const lastMessage = {...newMessages[lastIndex]};
+                        lastMessage.reply = [...lastMessage.reply, event.data];
+                        newMessages[lastIndex] = lastMessage;
+                        return newMessages;
+                    });
+                }
+            };
+        }
+
+        return () => {
+            if (connection.current) {
+                connection.current.close();
+                connection.current = null;
+            }
+        };
+
+    }, []);
+
+
 
     const handleSubmit = (query: string) => {
 
@@ -16,10 +57,10 @@ const Page: React.FC = () => {
             messages[messages.length - 1].prompt = query;
             return [...messages];
         })
-        url.searchParams.append("prompt", query);
-        url.searchParams.append("clearContext", "false");
+        messageUrl.searchParams.append("prompt", query);
+        messageUrl.searchParams.append("clearContext", "false");
 
-        const eventSource = new EventSource(url, { withCredentials: true });
+        const eventSource = new EventSource(messageUrl, { withCredentials: true });
 
         eventSource.onmessage = function(event) {
             if (event.data === "STREAM_END") {
@@ -51,7 +92,9 @@ const Page: React.FC = () => {
     return (
     <div className="Page">
         {messages.map(({prompt, reply}, index) => (
-            <><Input onSubmit={handleSubmit}/><Reply messages={reply}/></>
+            <React.Fragment key={index}>
+                <Input onSubmit={handleSubmit}/><Reply messages={reply}/>
+            </React.Fragment>
         ))}
 
     </div>

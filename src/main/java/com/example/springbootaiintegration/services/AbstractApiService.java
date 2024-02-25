@@ -38,11 +38,11 @@ public abstract class AbstractApiService {
                               {
                                   var responeString = response.getResult().getOutput().getContent();
                                   if (responeString != null) {
-                                      return responeString.replace(" ", "\u00A0");
                                   } else {
                                       response.getMetadata().getPromptMetadata().forEach(m -> System.out.println(m.getPromptIndex()));
                                       return "\n\n";
                                   }
+                                  return responeString;
                               }
                          ).doOnNext(System.out::print)
                          .publish()
@@ -50,7 +50,7 @@ public abstract class AbstractApiService {
 
         appendResponseToConversation(flux, conversation);
 
-        return flux.concatWith(Mono.just("STREAM_END"));
+        return flux.map(string -> string.replace(" ", "\u00A0")).concatWith(Mono.just("STREAM_END"));
     }
 
     private void appendResponseToConversation(Flux<String> flux, Session conversation) {
