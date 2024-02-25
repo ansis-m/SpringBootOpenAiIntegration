@@ -50,7 +50,9 @@ public abstract class AbstractApiService {
 
         appendResponseToConversation(flux, conversation);
 
-        return flux.map(string -> string.replace(" ", "\u00A0")).concatWith(Mono.just("STREAM_END"));
+        return flux
+                .map(string -> string.replace(" ", "\u00A0"))
+                .concatWith(Mono.just("STREAM_END"));
     }
 
     private void appendResponseToConversation(Flux<String> flux, Session conversation) {

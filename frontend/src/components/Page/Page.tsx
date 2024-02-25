@@ -32,7 +32,7 @@ const Page: React.FC = () => {
                         const newMessages = [...messages];
                         const lastIndex = newMessages.length - 1;
                         const lastMessage = {...newMessages[lastIndex]};
-                        lastMessage.reply = [...lastMessage.reply, event.data];
+                        lastMessage.reply = [...lastMessage.reply, event.data.replace(/\u00A0/g, " ")];
                         newMessages[lastIndex] = lastMessage;
                         return newMessages;
                     });
@@ -53,8 +53,6 @@ const Page: React.FC = () => {
 
     }, []);
 
-
-
     const handleSubmit = async (query: string) => {
 
         setMessage(messages => {
@@ -70,6 +68,10 @@ const Page: React.FC = () => {
             body: JSON.stringify({"prompt": query, "clearContext": false}),
             credentials: 'include'
         })
+
+        if (!response.ok) {
+            window.alert("something wrong with post");
+        }
     };
 
 
@@ -77,7 +79,8 @@ const Page: React.FC = () => {
     <div className="Page">
         {messages.map(({prompt, reply}, index) => (
             <React.Fragment key={index}>
-                <Input onSubmit={handleSubmit}/><Reply messages={reply}/>
+                <Input onSubmit={handleSubmit}/>
+                <Reply messages={reply}/>
             </React.Fragment>
         ))}
 

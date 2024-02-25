@@ -1,3 +1,8 @@
 
 
 
+.response {
+    padding: 50px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

@@ -1,10 +1,10 @@
 import {ReplyProps} from "./props";
 import React from "react";
-import "../Input/Input.css";
+import "../Reply/Reply.css";
 
 
 const Reply: React.FC<ReplyProps> = ({messages}) => {
-    return (<div className=""> <pre>{messages.join('')} </pre></div>);
+    return (<div className="response"> {messages.join('')} </div>);
 };
 
 export default Reply;

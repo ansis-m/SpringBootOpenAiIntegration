@@ -13,7 +13,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +41,7 @@ public class OpenApiController {
     }
 
 
-    @PostMapping(value = "/llama/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/llama/post")
     public ResponseEntity<Void> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId", required = false) String sessionId) {
 
         SseEmitter emitter = clientEmitters.get(sessionId);
@@ -62,7 +61,7 @@ public class OpenApiController {
 
 
     //establish the initial connection
-    @GetMapping("/connection")
+    @GetMapping(value = "/connection", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(@CookieValue(name = "sessionId", required = false) String sessionId, HttpServletResponse response) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         sessionId = manageCookies(sessionId, response);
@@ -72,7 +71,7 @@ public class OpenApiController {
         emitter.onTimeout(() -> clientEmitters.remove(finalSessionId));
         System.out.println("Connection established. Cookie: " + finalSessionId);
         try {
-            emitter.send("conection");
+            emitter.send(""); //need to send cookie for the post
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

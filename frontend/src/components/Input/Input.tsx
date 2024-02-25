@@ -16,10 +16,8 @@ const Input: React.FC<InputProps> = (props) => {
 
   return (
       <div className="center">
-        <div>
-          Input
-        </div>
-        <textarea value={inputText} onChange={handleInputChange}></textarea>
+        <textarea rows={4} cols={100} value={inputText} onChange={handleInputChange}></textarea>
+          <br></br>
         <button onClick={handleSubmit}>Send</button>
       </div>
   );
