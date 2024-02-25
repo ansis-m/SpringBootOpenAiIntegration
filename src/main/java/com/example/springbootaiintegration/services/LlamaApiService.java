@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class LlamaApiService extends AbstractApiService {
 
-    final OllamaOptions options = CustomOllamaOptions.createCodellamaOptions(this.model);
+    final OllamaOptions options = CustomOllamaOptions.createCodellamaOptions(CustomOllamaOptions.CODELLAMA);
 
 
     @Autowired

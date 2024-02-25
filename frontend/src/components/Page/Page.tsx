@@ -38,6 +38,10 @@ const Page: React.FC = () => {
                     });
                 }
             };
+
+            connection.current.onerror = function(error) {
+                console.error("EventSource failed:", error);
+            };
         }
 
         return () => {
@@ -51,41 +55,21 @@ const Page: React.FC = () => {
 
 
 
-    const handleSubmit = (query: string) => {
+    const handleSubmit = async (query: string) => {
 
         setMessage(messages => {
             messages[messages.length - 1].prompt = query;
             return [...messages];
         })
-        messageUrl.searchParams.append("prompt", query);
-        messageUrl.searchParams.append("clearContext", "false");
 
-        const eventSource = new EventSource(messageUrl, { withCredentials: true });
-
-        eventSource.onmessage = function(event) {
-            if (event.data === "STREAM_END") {
-                eventSource.close();
-                setMessage(messages => {
-                    return [...messages, {"reply": [""], "prompt": ""}];
-                })
-                console.log("closed");
-            } else {
-                setMessage(messages => {
-                    console.log(event.data);
-                    const newMessages = [...messages];
-                    const lastIndex = newMessages.length - 1;
-                    const lastMessage = {...newMessages[lastIndex]};
-                    lastMessage.reply = [...lastMessage.reply, event.data];
-                    newMessages[lastIndex] = lastMessage;
-                    return newMessages;
-                });
-            }
-        };
-
-        eventSource.onerror = function(error) {
-            console.error("EventSource failed:", error);
-            eventSource.close();
-        };
+        const response = await fetch(messageUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({"prompt": query, "clearContext": false}),
+            credentials: 'include'
+        })
     };
 
 
