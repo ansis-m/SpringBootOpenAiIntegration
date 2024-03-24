@@ -1,7 +1,9 @@
 package com.example.springbootaiintegration.controllers;
 
+import com.example.springbootaiintegration.mongoRepos.entities.Session;
 import com.example.springbootaiintegration.services.LlamaApiService;
 import com.example.springbootaiintegration.services.OpenApiService;
+import com.example.springbootaiintegration.services.SessionService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,12 +28,15 @@ public class OpenApiController {
     private final Map<String, SseEmitter> clientEmitters = new ConcurrentHashMap<>();
     private final OpenApiService openApiService;
     private final LlamaApiService llamaApiService;
+    private final SessionService sessionService;
 
     @Autowired
     OpenApiController(OpenApiService openApiService,
-                      LlamaApiService llamaApiService) {
+                      LlamaApiService llamaApiService,
+                      SessionService sessionService) {
         this.openApiService = openApiService;
         this.llamaApiService = llamaApiService;
+        this.sessionService = sessionService;
     }
 
     @PostMapping(value = "/openapi/post", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -76,6 +82,13 @@ public class OpenApiController {
             throw new RuntimeException(e);
         }
         return emitter;
+    }
+
+
+    //load the session
+    @GetMapping(value = "/load")
+    public ResponseEntity<Session> load(@CookieValue(name = "sessionId") String sessionId) {
+        return ResponseEntity.of(Optional.ofNullable(sessionService.getConversation(sessionId)));
     }
 
     private String manageCookies(String sessionId, HttpServletResponse response) {

@@ -29,7 +29,7 @@ public abstract class AbstractApiService {
 
         validate(conversation);
 
-        conversation.getMessages().add(new MessageDto(intro + (String) request.get("prompt"), MessageType.USER.getValue()));
+        conversation.getMessages().add(new MessageDto(intro + request.get("prompt"), MessageType.USER.getValue()));
         var prompt = new Prompt(conversation.getMessages().stream().map(MessageDto::convert).toList());
 
         initializeClient(request);
