@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
+import ReactLoading from 'react-loading';
 import Reply from "../Reply/Reply";
 import Input from "../Input/Input";
 import "./Page.css";
@@ -114,17 +115,23 @@ const Page: React.FC = () => {
 
 
     return (
-    <div className="Page">
-        {messages.map(({prompt, reply}, index) => {
-            return (
-            <React.Fragment key={index}>
-                <Input onSubmit={handleSubmit}
-                        prompt = {prompt}/>
-                <Reply messages={reply}/>
-            </React.Fragment>
-        )})}
+        <>
+            <div>
+                <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>
+            </div>
+            <div className="Page">
+                {messages.map((message, index) => {
+                    return (
+                        <React.Fragment key={index}>
+                            <Input onSubmit={handleSubmit}
+                                   message={message}/>
+                            <Reply message={message}/>
+                        </React.Fragment>
+                    );
+                })}
 
-    </div>
+            </div>
+        </>
     );
 };
 

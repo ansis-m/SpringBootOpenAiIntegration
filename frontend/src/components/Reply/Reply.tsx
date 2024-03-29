@@ -5,8 +5,8 @@ import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import "../Reply/Reply.css";
 
 
-const Reply: React.FC<ReplyProps> = ({messages}) => {
-    return (<div className="response"> {messages.join('').split("```").map((part, index) => {
+const Reply: React.FC<ReplyProps> = ({message}) => {
+    return (<div className="response"> {message.reply.join('').split("```").map((part, index) => {
         if (index % 2 === 0 ) {
             return (<div key={index}>{part}</div>);
         }

@@ -2,3 +2,9 @@
 .center{
     text-align: center;
 }
+
+textarea {
+    width: calc(100vw - 120px);
+    padding: 10px;
+    resize: vertical;
+}

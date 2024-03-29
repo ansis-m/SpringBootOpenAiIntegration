@@ -1,6 +1,7 @@
+import {Message} from "../Page/Page";
 
 
 export interface InputProps {
     onSubmit: (message: string) => void;
-    prompt: string;
+    message: Message;
 }

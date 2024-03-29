@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {InputProps} from "./props";
 import "./Input.css";
 
@@ -6,11 +6,21 @@ import "./Input.css";
 const Input: React.FC<InputProps> = (props) => {
 
   const [inputText, setInputText] = useState<string>('');
+  const textareaRef = useRef(null);
+  const readonly = props.message.reply.length !== 2;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setInputText(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInputText(e.target.value)
+      // @ts-ignore
+      textareaRef.current.style.height = 'auto';
+      // @ts-ignore
+      const h = (parseInt(textareaRef.current.scrollHeight) - parseInt(window.getComputedStyle(e.target).fontSize) * 1.5);
+      // @ts-ignore
+      textareaRef.current.style.height = h + 'px';
+  };
 
     useEffect(() => {
-        setInputText(() => props.prompt);
+        setInputText(() => props.message.prompt);
     }, [props]);
 
   const handleSubmit = () => {
@@ -19,9 +29,12 @@ const Input: React.FC<InputProps> = (props) => {
 
   return (
       <div className="center">
-        <textarea rows={4} cols={100} value={inputText} onChange={handleInputChange}></textarea>
-          <br></br>
-        <button onClick={handleSubmit}>Send</button>
+        <textarea ref={textareaRef} readOnly={readonly} rows={0} value={inputText} onInput={handleInputChange}></textarea>
+          {!readonly && (
+              <>
+                  <br></br>
+                  <button onClick={handleSubmit}>Send</button>
+              </>)}
       </div>
   );
 };
