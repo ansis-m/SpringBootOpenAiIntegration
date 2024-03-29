@@ -5,6 +5,8 @@ import com.example.springbootaiintegration.mongoRepos.entities.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class SessionService {
 
@@ -15,8 +17,8 @@ public class SessionService {
         this.repository = repository;
     }
 
-    public Session getConversation(String sessionId) {
-        return repository.findById(sessionId).orElse(null);
+    public Optional<Session> getConversation(String sessionId) {
+        return repository.findById(sessionId);
     }
 
     public void addConversation(Session conversation) {

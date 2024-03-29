@@ -88,7 +88,7 @@ public class OpenApiController {
     //load the session
     @GetMapping(value = "/load")
     public ResponseEntity<Session> load(@CookieValue(name = "sessionId") String sessionId) {
-        return ResponseEntity.of(Optional.ofNullable(sessionService.getConversation(sessionId)));
+        return ResponseEntity.of(sessionService.getConversation(sessionId));
     }
 
     private String manageCookies(String sessionId, HttpServletResponse response) {

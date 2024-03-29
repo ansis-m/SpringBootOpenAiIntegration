@@ -22,7 +22,7 @@ public abstract class AbstractApiService {
 
     public Flux<String> getFlux(Map<String, Object> request, String id) {
 
-        var conversation = sessionService.getConversation(id);
+        var conversation = sessionService.getConversation(id).orElse(null);
         if (conversation == null || request.get("clearContext").equals(Boolean.TRUE)) {
             conversation = new Session(id, new LinkedList<>());
         }

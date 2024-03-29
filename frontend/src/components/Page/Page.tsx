@@ -57,8 +57,6 @@ const Page: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        console.log("cookie is set: " + cookieIsSet);
-
         const fetchMessages = async () => {
             const response = await fetch(loadUrl, {
                 method: 'GET',
@@ -69,14 +67,12 @@ const Page: React.FC = () => {
             })
 
             if (!response.ok) {
-                window.alert("something wrong with post");
+                console.log("New session, nothing to load.");
             } else {
                 const load = await response.json();
-                console.log("load: " + JSON.stringify(load));
 
                 const newMessages = load.messages.reduce((acc: { prompt: string; reply: string[]; }[], curr: { type: string; content: string; }, index: number, src: (typeof curr)[]) => {
                     if (curr.type === 'user') {
-                        console.log("push: " + curr.content);
                         acc.push({"prompt" : curr.content, "reply" : [index + 1 < src.length && src[index + 1].type === 'assistant'? src[index + 1].content : '222']});
                     }
                     return acc;
@@ -119,13 +115,14 @@ const Page: React.FC = () => {
 
     return (
     <div className="Page">
-        {messages.map(({prompt, reply}, index) => (
+        {messages.map(({prompt, reply}, index) => {
+            return (
             <React.Fragment key={index}>
                 <Input onSubmit={handleSubmit}
                         prompt = {prompt}/>
                 <Reply messages={reply}/>
             </React.Fragment>
-        ))}
+        )})}
 
     </div>
     );
