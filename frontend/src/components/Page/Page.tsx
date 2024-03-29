@@ -13,7 +13,7 @@ const Page: React.FC = () => {
     const messageUrl = new URL(baseUrl + "/llama/post");
     const connectionUrl = new URL(baseUrl + "/connection");
     const loadUrl = new URL(baseUrl + "/load");
-    const [messages, setMessage] = useState<Message[]>([{"prompt": "", "reply": [""]}]);
+    const [messages, setMessage] = useState<Message[]>([{"prompt": "", "reply": []}]);
 
 
     useEffect(() => {
@@ -24,15 +24,17 @@ const Page: React.FC = () => {
             connection.current.onopen = (event) => {console.log('Connection established!')};
 
             connection.current.onmessage = function(event) {
-                if (event.data === "STREAM_END") {
+                if (event.data === "") {
+                    setCookie(true);
+                    console.log("dummy message");
+                } else if (event.data === "STREAM_END") {
                     setMessage(messages => {
-                        return [...messages, {"reply": [""], "prompt": ""}];
+                        return [...messages, {"reply": [], "prompt": ""}];
                     })
                     console.log("closed");
                 } else {
                     setMessage(messages => {
                         console.log("data: " + event.data);
-                        setCookie(true);
                         const newMessages = [...messages];
                         const lastIndex = newMessages.length - 1;
                         const lastMessage = {...newMessages[lastIndex]};

@@ -7,7 +7,7 @@ const Input: React.FC<InputProps> = (props) => {
 
   const [inputText, setInputText] = useState<string>('');
   const textareaRef = useRef(null);
-  const readonly = props.message.reply.length !== 2;
+  const readonly = props.message.reply.length !== 0;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputText(e.target.value)
