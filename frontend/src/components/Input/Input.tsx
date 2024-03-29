@@ -1,13 +1,15 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
 import {InputProps} from "./props";
 import "./Input.css";
+import ReactLoading from "react-loading";
 
 
 const Input: React.FC<InputProps> = (props) => {
 
   const [inputText, setInputText] = useState<string>('');
+  const [spinner, setSpinner] = useState<boolean>(false);
+  const [readonly, setReadonly]= useState<boolean>(props.message.reply.length !== 0);
   const textareaRef = useRef(null);
-  const readonly = props.message.reply.length !== 0;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputText(e.target.value)
@@ -19,22 +21,38 @@ const Input: React.FC<InputProps> = (props) => {
       textareaRef.current.style.height = h + 'px';
   };
 
+  const  handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey && !readonly) {
+            console.log('Enter key was pressed');
+            event.preventDefault();
+            handleSubmit();
+        }
+    };
+
     useEffect(() => {
         setInputText(() => props.message.prompt);
     }, [props]);
 
   const handleSubmit = () => {
-    props.onSubmit(inputText);
+    props.onSubmit(inputText).then(result => {
+        setReadonly(result);
+        setSpinner(result);});
   }
 
   return (
       <div className="center">
-        <textarea ref={textareaRef} readOnly={readonly} rows={0} value={inputText} onInput={handleInputChange}></textarea>
-          {!readonly && (
+        <textarea onKeyDown={handleKeyDown} ref={textareaRef} readOnly={readonly} rows={0} value={inputText} onChange={handleInputChange}></textarea>
+        <br></br>
+          {!readonly.valueOf() && !spinner.valueOf() && (
               <>
-                  <br></br>
                   <button onClick={handleSubmit}>Send</button>
-              </>)}
+              </>
+          )}
+          {spinner.valueOf() && !props.message.reply.length && (
+              <>
+                  <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>
+              </>
+          )}
       </div>
   );
 };

@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from "react";
-import ReactLoading from 'react-loading';
 import Reply from "../Reply/Reply";
 import Input from "../Input/Input";
 import "./Page.css";
@@ -94,7 +93,7 @@ const Page: React.FC = () => {
 
     }, [cookieIsSet]);
 
-    const handleSubmit = async (query: string) => {
+    const handleSubmit = async (query: string): Promise<boolean> => {
 
         setMessage(messages => {
             messages[messages.length - 1].prompt = query;
@@ -112,15 +111,14 @@ const Page: React.FC = () => {
 
         if (!response.ok) {
             window.alert("something wrong with post");
+            return false;
         }
+        return true;
     };
 
 
     return (
         <>
-            <div>
-                <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>
-            </div>
             <div className="Page">
                 {messages.map((message, index) => {
                     return (
