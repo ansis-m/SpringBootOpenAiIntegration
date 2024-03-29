@@ -118,8 +118,9 @@ const Page: React.FC = () => {
 
 
     return (
-        <>
-            <div className="Page">
+        <div className={"grid-container"}>
+            <div className={"header"}></div>
+            <div className="main-content">
                 {messages.map((message, index) => {
                     return (
                         <React.Fragment key={index}>
@@ -129,9 +130,9 @@ const Page: React.FC = () => {
                         </React.Fragment>
                     );
                 })}
-
             </div>
-        </>
+            <div className={"sidebar"}></div>
+        </div>
     );
 };
 

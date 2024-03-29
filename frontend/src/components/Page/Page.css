@@ -1,2 +1,31 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    grid-template-rows: 30px auto 5px;
+    height: 100vh;
+    overflow: hidden;
+}
 
+.header {
+    grid-column: 1 / -1;
+    background-color: #f4f4f4;
+}
+
+.sidebar {
+    background-color: #ddd;
+    grid-row: 2 / 3;
+    overflow-y: auto;
+}
+
+.main-content {
+    background-color: #e8e8e8;
+    overflow-y: scroll;
+    grid-row: 2 / 3;
+}
+
+.footer {
+    grid-column: 1 / -1;
+    background-color: #cccccc;
+    grid-row: 3;
+}
 

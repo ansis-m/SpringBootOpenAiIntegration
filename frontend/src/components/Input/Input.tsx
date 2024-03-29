@@ -8,7 +8,7 @@ const Input: React.FC<InputProps> = (props) => {
 
   const [inputText, setInputText] = useState<string>('');
   const [spinner, setSpinner] = useState<boolean>(false);
-  const [readonly, setReadonly]= useState<boolean>(props.message.reply.length !== 0);
+  const [readonly, setReadonly]= useState<boolean>(false);
   const textareaRef = useRef(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -22,14 +22,14 @@ const Input: React.FC<InputProps> = (props) => {
   };
 
   const  handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.key === 'Enter' && !event.shiftKey && !readonly) {
-            console.log('Enter key was pressed');
+      if (event.key === 'Enter' && !event.shiftKey && !readonly) {
             event.preventDefault();
             handleSubmit();
         }
     };
 
     useEffect(() => {
+        setReadonly(props.message.reply.length !== 0);
         setInputText(() => props.message.prompt);
     }, [props]);
 
@@ -43,11 +43,11 @@ const Input: React.FC<InputProps> = (props) => {
       <div className="center">
         <textarea onKeyDown={handleKeyDown} ref={textareaRef} readOnly={readonly} rows={0} value={inputText} onChange={handleInputChange}></textarea>
         <br></br>
-          {!readonly.valueOf() && !spinner.valueOf() && (
+          {!(readonly.valueOf() || spinner.valueOf()) && (
               <>
                   <button onClick={handleSubmit}>Send</button>
               </>
-          )}
+          ) }
           {spinner.valueOf() && !props.message.reply.length && (
               <>
                   <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>

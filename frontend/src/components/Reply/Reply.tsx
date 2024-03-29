@@ -10,7 +10,7 @@ const Reply: React.FC<ReplyProps> = ({message}) => {
         if (index % 2 === 0 ) {
             return (<div key={index}>{part}</div>);
         }
-        return <SyntaxHighlighter key={index} style={solarizedlight} language={"java"}>{part}</SyntaxHighlighter>
+        return <SyntaxHighlighter key={index} style={solarizedlight} language={"java"}>{part.trim()}</SyntaxHighlighter>
     })} </div>);
 };
 
