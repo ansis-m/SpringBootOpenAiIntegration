@@ -29,11 +29,12 @@ public abstract class AbstractApiService {
 
         var conversation = sessionService.getConversation(id).orElse(null);
         if (conversation == null || request.get("clearContext").equals(Boolean.TRUE)) {
-            conversation = new Session(id, new LinkedList<>());
+            conversation = new Session(id);
         }
 
         ExchangeDto newExchange = new ExchangeDto((String) request.get("prompt"), MessageType.USER.getValue());
         addSystemMessage(newExchange);
+        addModel(newExchange);
 
         conversation.getExchanges().add(newExchange);
 
@@ -79,4 +80,5 @@ public abstract class AbstractApiService {
     abstract void initializeClient(Map<String, Object> request);
     abstract void makeClient();
     abstract void addSystemMessage(ExchangeDto exchangeDto);
+    abstract void addModel(ExchangeDto exchangeDto);
 }

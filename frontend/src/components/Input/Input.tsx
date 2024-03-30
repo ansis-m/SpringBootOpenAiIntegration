@@ -34,7 +34,7 @@ const Input: React.FC<InputProps> = (props) => {
     }, [props]);
 
   const handleSubmit = () => {
-    props.onSubmit(inputText).then(result => {
+    inputText.trim().length && props.onSubmit(inputText).then(result => {
         setReadonly(result);
         setSpinner(result);});
   }

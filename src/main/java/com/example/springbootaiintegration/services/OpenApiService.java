@@ -1,7 +1,9 @@
 package com.example.springbootaiintegration.services;
 
 import com.example.springbootaiintegration.mongoRepos.dtos.ExchangeDto;
+import com.example.springbootaiintegration.mongoRepos.entities.Model;
 import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ public class OpenApiService extends AbstractApiService{
     @Autowired
     OpenApiService(SessionService sessionService) {
         this.sessionService = sessionService;
-        this.model = "gpt-3.5-turbo";
+        this.model = Model.GPT_3_5_TURBO.getValue();
         makeClient();
     }
 
@@ -46,19 +48,25 @@ public class OpenApiService extends AbstractApiService{
 
     @Override
     void makeClient() {
-        var combinedClient = new OpenAiChatClient(aiApi);
+        var options = OpenAiChatOptions.builder()
+                                     .withModel(this.model)
+                                     .withTemperature(0.4F)
+                                     .withMaxTokens(TOKENS)
+                                     .withN(1)
+                                     .build();
+        var combinedClient = new OpenAiChatClient(aiApi, options);
         this.streamingClient = combinedClient;
         this.client = combinedClient;
-//                .withDefaultOptions(OpenAiChatOptions.builder()
-//                                                     .withModel(this.model)
-//                                                     .withTemperature(0.4F)
-//                                                     .withMaxTokens(TOKENS)
-//                                                     .withN(1)
-//                                                     .build());
     }
 
     @Override
     void addSystemMessage(ExchangeDto exchangeDto) {
 
+    }
+
+    @Override
+    void addModel(ExchangeDto exchangeDto) {
+        //TODO make this more generic and possible to select
+        exchangeDto.setModel(this.model);
     }
 }

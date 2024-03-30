@@ -47,7 +47,7 @@ public class OpenApiController {
         return openApiService.getFlux(request, sessionId);
     }
 
-
+    //TODO make a single generic endpoint, all we need is a service selector/factory
     @PostMapping(value = "/llama/post")
     public ResponseEntity<Void> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId") String sessionId) {
 

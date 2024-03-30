@@ -16,6 +16,8 @@ public class ExchangeDto {
     private String request;
     private String response;
     private String systemMessage;
+
+    private String model;
     private String id;
 
     public ExchangeDto() {

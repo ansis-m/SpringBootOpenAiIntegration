@@ -16,6 +16,14 @@ import java.util.LinkedList;
 public class Session {
     @Id
     private String id;
+
+    private String name;
+    private Model currentModel;
     private LinkedList<ExchangeDto> exchanges;
+
+    public Session(String id) {
+        this.id = id;
+        this.exchanges = new LinkedList<>();
+    }
 
 }

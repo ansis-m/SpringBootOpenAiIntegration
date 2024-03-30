@@ -34,7 +34,7 @@ public class LlamaApiService extends AbstractApiService {
 
     @Override
     void makeClient() {
-        var combinedClient = new OllamaChatClient(new OllamaApi()).withDefaultOptions(options);
+        var combinedClient = new OllamaChatClient(new OllamaApi()).withModel(CustomOllamaOptions.CODELLAMA);
         this.streamingClient = combinedClient;
         this.client = combinedClient;
     }
@@ -42,5 +42,11 @@ public class LlamaApiService extends AbstractApiService {
     @Override
     void addSystemMessage(ExchangeDto exchangeDto) {
 
+    }
+
+    @Override
+    void addModel(ExchangeDto exchangeDto) {
+        //TODO later make generic and allow custom selection
+        exchangeDto.setModel(CustomOllamaOptions.CODELLAMA);
     }
 }
