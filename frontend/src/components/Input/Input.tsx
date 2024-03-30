@@ -16,7 +16,7 @@ const Input: React.FC<InputProps> = (props) => {
       // @ts-ignore
       textareaRef.current.style.height = 'auto';
       // @ts-ignore
-      const h = (parseInt(textareaRef.current.scrollHeight) - parseInt(window.getComputedStyle(e.target).fontSize) * 1.5);
+      const h = (parseInt(textareaRef.current.scrollHeight) - parseInt(window.getComputedStyle(e.target).fontSize) + 10);
       // @ts-ignore
       textareaRef.current.style.height = h + 'px';
   };
@@ -41,17 +41,16 @@ const Input: React.FC<InputProps> = (props) => {
 
   return (
       <div className="center">
-        <textarea onKeyDown={handleKeyDown} ref={textareaRef} readOnly={readonly} rows={0} value={inputText} onChange={handleInputChange}></textarea>
-        <br></br>
+        <textarea onKeyDown={handleKeyDown} ref={textareaRef} readOnly={readonly} rows={2} value={inputText} onChange={handleInputChange}></textarea>
           {!(readonly.valueOf() || spinner.valueOf()) && (
-              <>
+              <div className={"margin_top"}>
                   <button onClick={handleSubmit}>Send</button>
-              </>
+              </div>
           ) }
           {spinner.valueOf() && !props.message.reply.length && (
-              <>
+              <div className={"margin_top"}>
                   <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>
-              </>
+              </div>
           )}
       </div>
   );

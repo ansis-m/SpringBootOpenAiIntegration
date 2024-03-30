@@ -12,6 +12,7 @@ const Page: React.FC = () => {
     const messageUrl = new URL(baseUrl + "/llama/post");
     const connectionUrl = new URL(baseUrl + "/connection");
     const loadUrl = new URL(baseUrl + "/load");
+    const terminateUrl = new URL(baseUrl + "/terminate");
     const [messages, setMessage] = useState<Message[]>([{"prompt": "", "reply": []}]);
 
 
@@ -117,9 +118,24 @@ const Page: React.FC = () => {
     };
 
 
+    const terminate = async () => {
+        const response = await fetch(terminateUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        })
+        if (!response.ok) {
+            window.alert("something wrong with terminate");
+        }
+    }
+
     return (
         <div className={"grid-container"}>
-            <div className={"header"}></div>
+            <div className={"header"}>
+                <button onClick={terminate}>terminate</button>
+            </div>
             <div className="main-content">
                 {messages.map((message, index) => {
                     return (

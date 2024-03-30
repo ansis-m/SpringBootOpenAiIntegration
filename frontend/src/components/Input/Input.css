@@ -1,17 +1,21 @@
 
 .center {
-    text-align: center;
-    align-items: center;
-    justify-content: center;
+    padding-top: 20px;
+    display: grid;
+    place-items: center;
+    grid-template-rows: auto auto auto;
 }
 
 textarea {
-    width: calc(100% - 120px);
-    padding: 10px;
+    width: calc(100% - 100px);
     resize: vertical;
     font-size: 12px;
 }
 
 button {
     font-size: 10px;
+}
+
+.margin_top {
+    margin-top: 8px;
 }
