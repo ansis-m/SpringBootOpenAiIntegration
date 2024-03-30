@@ -1,8 +1,11 @@
 package com.example.springbootaiintegration.services;
 
-import com.example.springbootaiintegration.mongoRepos.dtos.MessageDto;
+import com.example.springbootaiintegration.mongoRepos.dtos.ExchangeDto;
 import com.example.springbootaiintegration.mongoRepos.entities.Session;
+
+import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.StreamingChatClient;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.prompt.Prompt;
 
@@ -10,13 +13,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class AbstractApiService {
 
     SessionService sessionService;
-    StreamingChatClient client;
-    String intro = "";
+    ChatClient client;
+    StreamingChatClient streamingClient;
     String model = "";
 
 
@@ -27,14 +32,16 @@ public abstract class AbstractApiService {
             conversation = new Session(id, new LinkedList<>());
         }
 
-        validate(conversation);
+        ExchangeDto newExchange = new ExchangeDto((String) request.get("prompt"), MessageType.USER.getValue());
+        addSystemMessage(newExchange);
 
-        conversation.getMessages().add(new MessageDto(intro + request.get("prompt"), MessageType.USER.getValue()));
-        var prompt = new Prompt(conversation.getMessages().stream().map(MessageDto::convert).toList());
+        conversation.getExchanges().add(newExchange);
+
+        var prompt = new Prompt(conversation.getExchanges().stream().map(ExchangeDto::convert).flatMap(this::streamAndFilter).toList());
 
         initializeClient(request);
-        var flux = client.stream(prompt)
-                         .map(response ->
+        Flux<String> flux = streamingClient.stream(prompt)
+                                  .map(response ->
                               {
                                   var responeString = response.getResult().getOutput().getContent();
                                   if (responeString != null) {
@@ -45,8 +52,8 @@ public abstract class AbstractApiService {
                                   return responeString;
                               }
                          ).doOnNext(System.out::print)
-                         .publish()
-                         .autoConnect(2);
+                                  .publish()
+                                  .autoConnect(2);
 
         appendResponseToConversation(flux, conversation);
 
@@ -55,24 +62,21 @@ public abstract class AbstractApiService {
                 .concatWith(Mono.just("STREAM_END"));
     }
 
+    private Stream<Message> streamAndFilter(List<Message> messages) {
+        return messages.stream().filter(message -> !(message.getContent() == null && MessageType.SYSTEM.equals(message.getMessageType())));
+    }
+
     private void appendResponseToConversation(Flux<String> flux, Session conversation) {
         flux.collectList().subscribe(
                 list -> {
                     var response = String.join("", list);
-                    conversation.getMessages().add(new MessageDto(response));
+                    conversation.getExchanges().getLast().setResponse(response);
                     sessionService.addConversation(conversation);
                 },
                 error -> System.out.println("error collecting the list!"));
     }
 
-    private static void validate(Session session) {
-
-        var conversation = session.getMessages();
-        while (conversation.size() != 0 && conversation.get(conversation.size() - 1).getType().equals("user")) {
-            conversation.remove(conversation.size() - 1);
-        }
-    }
-
     abstract void initializeClient(Map<String, Object> request);
     abstract void makeClient();
+    abstract void addSystemMessage(ExchangeDto exchangeDto);
 }

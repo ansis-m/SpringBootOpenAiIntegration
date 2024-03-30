@@ -6,7 +6,7 @@ import "../Reply/Reply.css";
 
 
 const Reply: React.FC<ReplyProps> = ({message}) => {
-    return (<div className="response"> {message.reply.join('').split("```").map((part, index) => {
+    return (<div className="response"> {message.response.join('').split("```").map((part, index) => {
         if (index % 2 === 0 ) {
             return (<div key={index}>{part}</div>);
         }

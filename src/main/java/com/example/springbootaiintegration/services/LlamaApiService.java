@@ -1,5 +1,6 @@
 package com.example.springbootaiintegration.services;
 
+import com.example.springbootaiintegration.mongoRepos.dtos.ExchangeDto;
 import org.springframework.ai.ollama.OllamaChatClient;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
@@ -17,7 +18,6 @@ public class LlamaApiService extends AbstractApiService {
     @Autowired
     LlamaApiService(SessionService sessionService) {
         model = CustomOllamaOptions.CODELLAMA;
-        intro = "You are an expert programmer who gives excellent programming advice. ";
         this.sessionService = sessionService;
         makeClient();
     }
@@ -34,7 +34,13 @@ public class LlamaApiService extends AbstractApiService {
 
     @Override
     void makeClient() {
-        this.client = new OllamaChatClient(new OllamaApi())
-                .withDefaultOptions(options);
+        var combinedClient = new OllamaChatClient(new OllamaApi()).withDefaultOptions(options);
+        this.streamingClient = combinedClient;
+        this.client = combinedClient;
+    }
+
+    @Override
+    void addSystemMessage(ExchangeDto exchangeDto) {
+
     }
 }

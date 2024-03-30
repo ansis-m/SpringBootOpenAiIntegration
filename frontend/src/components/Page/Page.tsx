@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import Reply from "../Reply/Reply";
 import Input from "../Input/Input";
 import "./Page.css";
-
+import {Exchange, Session} from "./Session";
 
 const Page: React.FC = () => {
 
@@ -13,7 +13,7 @@ const Page: React.FC = () => {
     const connectionUrl = new URL(baseUrl + "/connection");
     const loadUrl = new URL(baseUrl + "/load");
     const terminateUrl = new URL(baseUrl + "/terminate");
-    const [messages, setMessage] = useState<Message[]>([{"prompt": "", "reply": []}]);
+    const [messages, setMessage] = useState<Message[]>([{"request": "", "response": []}]);
 
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const Page: React.FC = () => {
                     console.log("dummy message");
                 } else if (event.data === "STREAM_END") {
                     setMessage(messages => {
-                        return [...messages, {"reply": [], "prompt": ""}];
+                        return [...messages, {"request": "", "response": []}];
                     })
                     console.log("closed");
                 } else {
@@ -38,7 +38,7 @@ const Page: React.FC = () => {
                         const newMessages = [...messages];
                         const lastIndex = newMessages.length - 1;
                         const lastMessage = {...newMessages[lastIndex]};
-                        lastMessage.reply = [...lastMessage.reply, event.data.replace(/\u00A0/g, " ")];
+                        lastMessage.response = [...lastMessage.response, event.data.replace(/\u00A0/g, " ")];
                         newMessages[lastIndex] = lastMessage;
                         return newMessages;
                     });
@@ -72,12 +72,12 @@ const Page: React.FC = () => {
             if (!response.ok) {
                 console.log("New session, nothing to load.");
             } else {
-                const load = await response.json();
+                const load: Session = await response.json();
+                console.log(JSON.stringify(load));
 
-                const newMessages = load.messages.reduce((acc: { prompt: string; reply: string[]; }[], curr: { type: string; content: string; }, index: number, src: (typeof curr)[]) => {
-                    if (curr.type === 'user') {
-                        acc.push({"prompt" : curr.content, "reply" : [index + 1 < src.length && src[index + 1].type === 'assistant'? src[index + 1].content : '222']});
-                    }
+                const newMessages = load.exchanges.reduce((acc: Message[], curr: Exchange, index: number, src: Exchange[]) => {
+                    const message: Message = {id: "", request: curr.request, response: curr.response? Array.of(curr.response) : [], systemMessage: curr.systemMessage};
+                    acc.push(message);
                     return acc;
                 }, []);
 
@@ -97,7 +97,7 @@ const Page: React.FC = () => {
     const handleSubmit = async (query: string): Promise<boolean> => {
 
         setMessage(messages => {
-            messages[messages.length - 1].prompt = query;
+            messages[messages.length - 1].request = query;
             return [...messages];
         })
 
@@ -155,6 +155,8 @@ const Page: React.FC = () => {
 export default Page;
 
 export type Message = {
-    prompt: string,
-    reply: string[];
+    request: string,
+    response: string[],
+    id?: string,
+    systemMessage?: string;
 }

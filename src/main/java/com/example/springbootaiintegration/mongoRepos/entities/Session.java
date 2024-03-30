@@ -1,6 +1,6 @@
 package com.example.springbootaiintegration.mongoRepos.entities;
 
-import com.example.springbootaiintegration.mongoRepos.dtos.MessageDto;
+import com.example.springbootaiintegration.mongoRepos.dtos.ExchangeDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.LinkedList;
-import java.util.UUID;
 
 @Document
 @Getter
@@ -17,6 +16,6 @@ import java.util.UUID;
 public class Session {
     @Id
     private String id;
-    private LinkedList<MessageDto> messages;
+    private LinkedList<ExchangeDto> exchanges;
 
 }

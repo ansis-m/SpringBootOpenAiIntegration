@@ -1,7 +1,7 @@
 package com.example.springbootaiintegration.services;
 
+import com.example.springbootaiintegration.mongoRepos.dtos.ExchangeDto;
 import org.springframework.ai.openai.OpenAiChatClient;
-import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,12 +46,19 @@ public class OpenApiService extends AbstractApiService{
 
     @Override
     void makeClient() {
-        this.client = new OpenAiChatClient(aiApi)
-                .withDefaultOptions(OpenAiChatOptions.builder()
-                                                     .withModel(this.model)
-                                                     .withTemperature(0.4F)
-                                                     .withMaxTokens(TOKENS)
-                                                     .withN(1)
-                                                     .build());
+        var combinedClient = new OpenAiChatClient(aiApi);
+        this.streamingClient = combinedClient;
+        this.client = combinedClient;
+//                .withDefaultOptions(OpenAiChatOptions.builder()
+//                                                     .withModel(this.model)
+//                                                     .withTemperature(0.4F)
+//                                                     .withMaxTokens(TOKENS)
+//                                                     .withN(1)
+//                                                     .build());
+    }
+
+    @Override
+    void addSystemMessage(ExchangeDto exchangeDto) {
+
     }
 }

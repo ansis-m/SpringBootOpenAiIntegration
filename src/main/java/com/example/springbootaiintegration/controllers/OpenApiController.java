@@ -12,11 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +26,7 @@ public class OpenApiController {
 
 
     private final Map<String, SseEmitter> clientEmitters = new ConcurrentHashMap<>();
+    private final Map<String, Disposable> disposables = new ConcurrentHashMap<>();
     private final OpenApiService openApiService;
     private final LlamaApiService llamaApiService;
     private final SessionService sessionService;
@@ -48,20 +49,35 @@ public class OpenApiController {
 
 
     @PostMapping(value = "/llama/post")
-    public ResponseEntity<Void> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId", required = false) String sessionId) {
+    public ResponseEntity<Void> postLamaMessage(@RequestBody Map<String, Object> request, @CookieValue(name = "sessionId") String sessionId) {
 
         SseEmitter emitter = clientEmitters.get(sessionId);
-        if (emitter != null) {
-            llamaApiService.getFlux(request, sessionId).subscribe(data -> {
+        try {
+            Disposable disposable = llamaApiService.getFlux(request, sessionId).subscribe(data -> {
                 try {
                     emitter.send(SseEmitter.event().data(data));
                 } catch (IOException e) {
                     emitter.completeWithError(e);
                 }
-            });
+            }, error -> {}, () -> {disposables.remove(sessionId);});
+            disposables.put(sessionId, disposable);
             return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping(value = "/terminate")
+    public ResponseEntity<Void> terminate(@CookieValue(name = "sessionId") String sessionId){
+        try {
+            Disposable disposable = disposables.get(sessionId);
+            SseEmitter emitter = clientEmitters.get(sessionId);
+            emitter.send("STREAM_END");
+            disposable.dispose();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -94,7 +110,6 @@ public class OpenApiController {
     private String manageCookies(String sessionId, HttpServletResponse response) {
         if (sessionId == null) {
             sessionId = UUID.randomUUID().toString();
-
         }
         Cookie cookie = new Cookie("sessionId", sessionId);
         cookie.setPath("/");

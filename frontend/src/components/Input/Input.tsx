@@ -29,8 +29,8 @@ const Input: React.FC<InputProps> = (props) => {
     };
 
     useEffect(() => {
-        setReadonly(props.message.reply.length !== 0);
-        setInputText(() => props.message.prompt);
+        setReadonly(props.message.response.length !== 0);
+        setInputText(() => props.message.request);
     }, [props]);
 
   const handleSubmit = () => {
@@ -47,7 +47,7 @@ const Input: React.FC<InputProps> = (props) => {
                   <button onClick={handleSubmit}>Send</button>
               </div>
           ) }
-          {spinner.valueOf() && !props.message.reply.length && (
+          {spinner.valueOf() && !props.message.response.length && (
               <div className={"margin_top"}>
                   <ReactLoading type={'spinningBubbles'} color={'#000'} height={20} width={20}/>
               </div>
