@@ -6,6 +6,7 @@
     overflow: hidden;
 }
 
+
 .header {
     grid-column: 1 / -1;
     background-color: #f4f4f4;

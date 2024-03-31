@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import Reply from "../Reply/Reply";
 import Input from "../Input/Input";
+import Header from "../Header/Header";
 import "./Page.css";
 import {Exchange, Session} from "./Session";
 
@@ -12,7 +13,8 @@ const Page: React.FC = () => {
     const messageUrl = new URL(baseUrl + "/llama/post");
     const connectionUrl = new URL(baseUrl + "/connection");
     const loadUrl = new URL(baseUrl + "/load");
-    const terminateUrl = new URL(baseUrl + "/terminate");
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     const [messages, setMessage] = useState<Message[]>([{"request": "", "response": []}]);
 
 
@@ -94,6 +96,13 @@ const Page: React.FC = () => {
 
     }, [cookieIsSet]);
 
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
+
     const handleSubmit = async (query: string): Promise<boolean> => {
 
         setMessage(messages => {
@@ -118,25 +127,12 @@ const Page: React.FC = () => {
     };
 
 
-    const terminate = async () => {
-        const response = await fetch(terminateUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include'
-        })
-        if (!response.ok) {
-            window.alert("something wrong with terminate");
-        }
-    }
-
     return (
         <div className={"grid-container"}>
             <div className={"header"}>
-                <button onClick={terminate}>terminate</button>
+                <Header></Header>
             </div>
-            <div className="main-content">
+            <div className="main-content" ref={scrollRef}>
                 {messages.map((message, index) => {
                     return (
                         <React.Fragment key={index}>

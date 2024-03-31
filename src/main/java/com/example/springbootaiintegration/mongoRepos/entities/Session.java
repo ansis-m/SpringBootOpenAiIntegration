@@ -15,15 +15,22 @@ import java.util.LinkedList;
 @AllArgsConstructor
 public class Session {
     @Id
+    //current cookie
     private String id;
-
     private String name;
     private Model currentModel;
     private LinkedList<ExchangeDto> exchanges;
 
+    public Session(){}
+
     public Session(String id) {
         this.id = id;
         this.exchanges = new LinkedList<>();
+    }
+
+    public Session(String id, LinkedList<ExchangeDto> exchanges) {
+        this.id = id;
+        this.exchanges = exchanges;
     }
 
 }

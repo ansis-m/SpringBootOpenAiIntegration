@@ -34,7 +34,7 @@ public class LlamaApiService extends AbstractApiService {
 
     @Override
     void makeClient() {
-        var combinedClient = new OllamaChatClient(new OllamaApi()).withModel(CustomOllamaOptions.CODELLAMA);
+        var combinedClient = new OllamaChatClient(new OllamaApi()).withDefaultOptions(options);
         this.streamingClient = combinedClient;
         this.client = combinedClient;
     }

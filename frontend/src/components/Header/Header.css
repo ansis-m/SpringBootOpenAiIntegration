@@ -1,0 +1,32 @@
+.header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: 1fr 1fr;
+    grid-template-areas:
+    "save clear terminate"
+    "select mode models";
+}
+
+.terminate {
+    grid-area: terminate;
+}
+
+.save {
+    grid-area: save;
+}
+
+.clear {
+    grid-area: clear;
+}
+
+.select {
+    grid-area: select;
+}
+
+.mode {
+    grid-area: mode;
+}
+
+.models {
+    grid-area: models;
+}
