@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -104,7 +105,13 @@ public class OpenApiController {
     //load the session
     @GetMapping(value = "/load")
     public ResponseEntity<Session> load(@CookieValue(name = "sessionId") String sessionId) {
-        return ResponseEntity.of(sessionService.getConversation(sessionId));
+        return ResponseEntity.of(sessionService.getSession(sessionId));
+    }
+
+    @PostMapping(value = "/save")
+    public ResponseEntity<String> save(@CookieValue(name = "sessionId") String sessionId, @RequestBody String name) {
+        var session = sessionService.saveName(sessionId, name);
+        return ResponseEntity.of(Optional.of(session.getName()));
     }
 
     private String manageCookies(String sessionId, HttpServletResponse response) {

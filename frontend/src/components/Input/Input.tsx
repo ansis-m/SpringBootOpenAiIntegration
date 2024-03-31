@@ -4,12 +4,12 @@ import "./Input.css";
 import ReactLoading from "react-loading";
 
 
-const Input: React.FC<InputProps> = (props) => {
+const Input: React.FC<InputProps> = (props, ref) => {
 
   const [inputText, setInputText] = useState<string>('');
   const [spinner, setSpinner] = useState<boolean>(false);
   const [readonly, setReadonly]= useState<boolean>(false);
-  const textareaRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputText(e.target.value)
@@ -31,7 +31,12 @@ const Input: React.FC<InputProps> = (props) => {
     useEffect(() => {
         setReadonly(props.message.response.length !== 0);
         setInputText(() => props.message.request);
+        !readonly && textareaRef?.current?.focus();
     }, [props]);
+
+    useEffect(() => {
+
+    }, [props])
 
   const handleSubmit = () => {
     inputText.trim().length && props.onSubmit(inputText).then(result => {

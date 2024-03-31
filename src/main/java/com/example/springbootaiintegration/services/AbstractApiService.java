@@ -12,7 +12,6 @@ import org.springframework.ai.chat.prompt.Prompt;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -27,7 +26,7 @@ public abstract class AbstractApiService {
 
     public Flux<String> getFlux(Map<String, Object> request, String id) {
 
-        var conversation = sessionService.getConversation(id).orElse(null);
+        var conversation = sessionService.getSession(id).orElse(null);
         if (conversation == null || request.get("clearContext").equals(Boolean.TRUE)) {
             conversation = new Session(id);
         }
@@ -72,7 +71,7 @@ public abstract class AbstractApiService {
                 list -> {
                     var response = String.join("", list);
                     conversation.getExchanges().getLast().setResponse(response);
-                    sessionService.addConversation(conversation);
+                    sessionService.addSession(conversation);
                 },
                 error -> System.out.println("error collecting the list!"));
     }
