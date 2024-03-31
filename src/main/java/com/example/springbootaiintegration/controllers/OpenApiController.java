@@ -114,6 +114,16 @@ public class OpenApiController {
         return ResponseEntity.of(Optional.of(session.getName()));
     }
 
+    @GetMapping(value = "/clear")
+    public ResponseEntity<Void> clear(@CookieValue(name = "sessionId") String sessionId, HttpServletResponse response) {
+
+        String newCookie = manageCookies(null, response);
+        sessionService.clearSession(sessionId, newCookie, clientEmitters, disposables);
+
+
+        return ResponseEntity.ok().build();
+    }
+
     private String manageCookies(String sessionId, HttpServletResponse response) {
         if (sessionId == null) {
             sessionId = UUID.randomUUID().toString();

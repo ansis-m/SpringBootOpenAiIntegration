@@ -18,4 +18,8 @@ public class History {
     //stores cookies and names
     private LinkedHashMap<String, String> sessionIdsAndNames;
 
+    public History() {
+        sessionIdsAndNames = new LinkedHashMap<>();
+    }
+
 }

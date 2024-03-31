@@ -13,6 +13,7 @@ const Page: React.FC = () => {
     const messageUrl = new URL(baseUrl + "/llama/post");
     const connectionUrl = new URL(baseUrl + "/connection");
     const loadUrl = new URL(baseUrl + "/load");
+    const clearUrl = new URL(baseUrl + "/clear");
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const [messages, setMessage] = useState<Message[]>([{"request": "", "response": []}]);
@@ -22,21 +23,15 @@ const Page: React.FC = () => {
 
         if (connection.current === null) {
             connection.current = new EventSource(connectionUrl, { withCredentials: true });
-
-            connection.current.onopen = (event) => {console.log('Connection established!')};
-
             connection.current.onmessage = function(event) {
                 if (event.data === "") {
                     setCookie(true);
-                    console.log("dummy message");
                 } else if (event.data === "STREAM_END") {
                     setMessage(messages => {
                         return [...messages, {"request": "", "response": []}];
                     })
-                    console.log("closed");
                 } else {
                     setMessage(messages => {
-                        console.log("data: " + event.data);
                         const newMessages = [...messages];
                         const lastIndex = newMessages.length - 1;
                         const lastMessage = {...newMessages[lastIndex]};
@@ -126,11 +121,26 @@ const Page: React.FC = () => {
         return true;
     };
 
+    const clearSession = async () => {
+        const response = await fetch(clearUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+        if (response.ok) {
+            setMessage(() => {return [{"request": "", "response": []}];});
+            //TODO get back some data about state
+        }
+
+    }
+
 
     return (
         <div className={"grid-container"}>
             <div className={"header"}>
-                <Header></Header>
+                <Header clearSession={clearSession}></Header>
             </div>
             <div className="main-content" ref={scrollRef}>
                 {messages.map((message, index) => {

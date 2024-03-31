@@ -1,6 +1,7 @@
-import React, {useRef} from "react";
+import React from "react";
 import {HeaderProps} from "./props";
 import "./Header.css";
+import {Utility} from "../../Utils/Utility";
 
 
 class Header extends React.Component<HeaderProps> {
@@ -8,7 +9,7 @@ class Header extends React.Component<HeaderProps> {
     private baseUrl = "http://localhost:8081";
     private terminateUrl = new URL(this.baseUrl + "/terminate");
     private saveUrl = new URL(this.baseUrl + "/save");
-    private inputRef: React.RefObject<HTMLInputElement>;
+    private readonly inputRef: React.RefObject<HTMLInputElement>;
     constructor(props: HeaderProps) {
         super(props);
         this.inputRef = React.createRef<HTMLInputElement>();
@@ -29,30 +30,15 @@ class Header extends React.Component<HeaderProps> {
         }
     }
 
+    private clearSession = async () => {
+        await this.saveSession();
+        await this.props.clearSession();
+    }
+
     private saveSession = async () => {
-        console.log(this.inputRef?.current?.value);
-        const name = this.inputRef?.current?.value.trim();
-        if (name) {
-          try{
-              const response = await fetch(this.saveUrl, {
-                  method: "POST",
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  credentials: 'include',
-                  body: name
-              })
-              if (!response.ok) {
-                  window.alert("something wrong with terminate");
-              }
-          } catch (e) {
-              window.alert(e)
-          }
-
-        }
-    };
-
-
+        const name = this.inputRef.current?.value.trim();
+        return Utility.saveSession(name || "");
+    }
 
     render() {
         return (
@@ -63,6 +49,9 @@ class Header extends React.Component<HeaderProps> {
                 <div className={"save"}>
                     <input type={"text"} ref={this.inputRef}></input>
                     <button onClick={this.saveSession}>Save current session</button>
+                </div>
+                <div className={"clear"}>
+                    <button onClick={this.clearSession}>Clear session</button>
                 </div>
             </div>
         );
