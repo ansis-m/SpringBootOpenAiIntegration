@@ -9,5 +9,5 @@ export interface Exchange {
     request: string;
     response?: string;
     systemMessage?: string;
-    id: string;
+    id: Record<string, string>;
 }

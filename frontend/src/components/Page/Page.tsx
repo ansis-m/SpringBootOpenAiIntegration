@@ -18,6 +18,7 @@ const Page: React.FC = () => {
 
     const [messages, setMessage] = useState<Message[]>([{"request": "", "response": []}]);
     const [name, setName] = useState<string>("");
+    const [history, setHistory] = useState<Record<string, string>>({});
 
 
     useEffect(() => {
@@ -70,7 +71,6 @@ const Page: React.FC = () => {
             if (!response.ok) {
                 console.log("New session, nothing to load.");
             } else {
-                console.log(JSON.stringify(response));
                 const load: Session = await response.json();
                 const newMessages = load.exchanges.reduce((acc: Message[], curr: Exchange, index: number, src: Exchange[]) => {
                     const message: Message = {id: "", request: curr.request, response: curr.response? Array.of(curr.response) : [], systemMessage: curr.systemMessage};
@@ -78,7 +78,7 @@ const Page: React.FC = () => {
                     return acc;
                 }, []);
                 setName(load.name || "");
-                console.log(name.valueOf()+ " load")
+                setHistory(load.sessionIdsAndNames);
                 setMessage((messages: any) => {
                     return [...newMessages, ...messages];
                 })
@@ -130,18 +130,16 @@ const Page: React.FC = () => {
             credentials: 'include'
         });
         if (response.ok) {
+            const history: Record<string, string> = await response.json();
             setMessage(() => {return [{"request": "", "response": []}];});
-            setName("");
-            //TODO get back some data about state
+            setHistory(history);
         }
-
     }
-
 
     return (
         <div className={"grid-container"}>
             <div className={"header"}>
-                <Header clearSession={clearSession} name={name.valueOf()}/>
+                <Header clearSession={clearSession} name={name.valueOf()} history={history.valueOf() as Record<string, string>}/>
             </div>
             <div className="main-content" ref={scrollRef}>
                 {messages.map((message, index) => {

@@ -3,9 +3,11 @@ import {HeaderProps} from "./props";
 import "./Header.css";
 import {Utility} from "../../Utils/Utility";
 import {debounce, DebouncedFunc} from "lodash";
+import Select, {SingleValue} from 'react-select';
 
 interface IState {
     name: string;
+    options: {value: string, label: string }[];
 }
 class Header extends React.Component<HeaderProps, IState> {
 
@@ -15,7 +17,7 @@ class Header extends React.Component<HeaderProps, IState> {
     private debouncedSaveSession: DebouncedFunc<() => Promise<void>>;
     constructor(props: HeaderProps) {
         super(props);
-        this.state = { name: "" };
+        this.state = { name: "", options: [] };
         this.nameChange = this.nameChange.bind(this);
         this.saveSession = this.saveSession.bind(this);
         this.debouncedSaveSession = debounce(this.saveSession, 600);
@@ -23,12 +25,25 @@ class Header extends React.Component<HeaderProps, IState> {
 
     componentDidMount() {
         this.setState({name: this.props.name || ""});
+        this.getOptions(this.props.history);
+    }
+    private getOptions(history: Record<string, string> | undefined): any[] {
+        return history ? [{value: "", label: "dummy"}, ...Object.entries(history).map(([key, value]) => ({
+            value: key,
+            label: value,
+        }))] : [];
     }
 
     componentDidUpdate(prevProps: Readonly<HeaderProps>, prevState: Readonly<{}>, snapshot?: any) {
+        console.log("perv: " + prevProps.name);
+        console.log("now: " + this.props.name);
         if (prevProps.name !== this.props.name) {
             this.setState({name: this.props.name || ""});
         }
+        if (prevProps.history !== this.props.history) {
+            this.setState({options: this.getOptions(this.props.history)});
+        }
+        this.props.history && Object.entries(this.props.history).forEach(e => console.log(e[0], " ", e[1]));
     }
 
     private terminate = async () => {
@@ -45,8 +60,12 @@ class Header extends React.Component<HeaderProps, IState> {
     }
 
     private clearSession = async () => {
-        await this.saveSession();
         await this.props.clearSession();
+        this.setState({name: ""});
+    }
+
+    private handleChange = async (selected: SingleValue<{ value: string; label: string; }>) => {
+        console.log(selected?.value + " and " +  selected?.label)
     }
 
     private readonly saveSession = async () => {
@@ -68,6 +87,9 @@ class Header extends React.Component<HeaderProps, IState> {
                 </div>
                 <div className={"clear"}>
                     <button onClick={this.clearSession}>New session</button>
+                </div>
+                <div className={"select"}>
+                    <Select options={this.state.options} onChange={this.handleChange}/>
                 </div>
             </div>
         );
