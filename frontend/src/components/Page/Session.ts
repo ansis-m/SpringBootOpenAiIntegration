@@ -1,5 +1,5 @@
 export interface Session {
-
+    name?: string;
     id?: string;
     exchanges: Exchange[];
 }

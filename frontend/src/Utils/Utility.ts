@@ -6,7 +6,6 @@ export class Utility {
 
     static saveSession = async (name: string) => {
         if (name) {
-            console.log("save session name");
             try{
                 const response = await fetch(this.saveUrl, {
                     method: "POST",

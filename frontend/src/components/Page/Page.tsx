@@ -17,6 +17,7 @@ const Page: React.FC = () => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const [messages, setMessage] = useState<Message[]>([{"request": "", "response": []}]);
+    const [name, setName] = useState<string>("");
 
 
     useEffect(() => {
@@ -70,17 +71,17 @@ const Page: React.FC = () => {
                 console.log("New session, nothing to load.");
             } else {
                 const load: Session = await response.json();
-                console.log(JSON.stringify(load));
-
                 const newMessages = load.exchanges.reduce((acc: Message[], curr: Exchange, index: number, src: Exchange[]) => {
                     const message: Message = {id: "", request: curr.request, response: curr.response? Array.of(curr.response) : [], systemMessage: curr.systemMessage};
                     acc.push(message);
                     return acc;
                 }, []);
-
+                setName(load.name || "");
+                console.log(name.valueOf()+ " load")
                 setMessage((messages: any) => {
                     return [...newMessages, ...messages];
                 })
+
             }
         }
 
@@ -131,6 +132,7 @@ const Page: React.FC = () => {
         });
         if (response.ok) {
             setMessage(() => {return [{"request": "", "response": []}];});
+            setName("");
             //TODO get back some data about state
         }
 
@@ -140,7 +142,7 @@ const Page: React.FC = () => {
     return (
         <div className={"grid-container"}>
             <div className={"header"}>
-                <Header clearSession={clearSession}></Header>
+                <Header clearSession={clearSession} name={name.valueOf()}/>
             </div>
             <div className="main-content" ref={scrollRef}>
                 {messages.map((message, index) => {
