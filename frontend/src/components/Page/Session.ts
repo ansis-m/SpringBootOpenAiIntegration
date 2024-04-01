@@ -1,7 +1,8 @@
 export interface Session {
     name?: string;
-    id?: string;
     exchanges: Exchange[];
+    currentModel?: string;
+    sessionIdsAndNames?: any;
 }
 
 export interface Exchange {

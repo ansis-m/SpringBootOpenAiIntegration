@@ -70,6 +70,7 @@ const Page: React.FC = () => {
             if (!response.ok) {
                 console.log("New session, nothing to load.");
             } else {
+                console.log(JSON.stringify(response));
                 const load: Session = await response.json();
                 const newMessages = load.exchanges.reduce((acc: Message[], curr: Exchange, index: number, src: Exchange[]) => {
                     const message: Message = {id: "", request: curr.request, response: curr.response? Array.of(curr.response) : [], systemMessage: curr.systemMessage};
@@ -84,8 +85,6 @@ const Page: React.FC = () => {
 
             }
         }
-
-
         if (cookieIsSet) {
             fetchMessages().then();
         }

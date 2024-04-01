@@ -49,8 +49,8 @@ class Header extends React.Component<HeaderProps, IState> {
         await this.props.clearSession();
     }
 
-    private saveSession = async () => {
-        await Utility.saveSession(this.state.name || "");
+    private readonly saveSession = async () => {
+        return Utility.saveSession(this.state.name || "");
     }
     nameChange(event: React.ChangeEvent<HTMLInputElement>): void {
         this.setState({ name: event.target.value });
